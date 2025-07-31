@@ -1,0 +1,76 @@
+\mode<presentation>
+
+% Image definitions
+% ==============================================================================
+\pgfdeclareimage[width=\paperwidth]{titleBackground}{bg}
+\pgfdeclareimage[width=\paperwidth]{pageBackground}{bgWave}
+\pgfdeclareimage[width=2.1cm]{logoUnitn}{unitn_logo}
+\pgfdeclareimage[width=2cm]{logoUnitnWhite}{unitn_logo_white}
+
+
+% Actual beamer definitions
+% ==============================================================================
+
+\defbeamertemplate*{title page}{pd theme} {
+    \centering\usebeamerfont{title}\usebeamercolor[fg]{title}\inserttitle\par
+    \ifx\insertsubtitle\@empty
+    \else
+        \vskip2ex
+        {\centering\usebeamerfont{subtitle}\usebeamercolor[fg]{subtitle}\insertsubtitle\par}
+    \fi
+    \ifx\insertauthor\@empty
+    \else
+        \vskip2.5ex
+        {
+            \usebeamerfont{author}\usebeamercolor[fg]{author}
+            \begin{minipage}[t]{0.48\linewidth}
+                \raggedright \insertauthor
+            \end{minipage}%
+            \hfill
+            \begin{minipage}[t]{0.48\linewidth}
+                \raggedleft \insertemail
+            \end{minipage}\par
+        }
+    \fi
+    \ifx\insertdate\@empty
+    \else
+        {
+            \usebeamerfont{date}\usebeamercolor[fg]{date}
+            \begin{minipage}[t]{0.48\linewidth}
+                \raggedright \insertdate
+            \end{minipage}%
+            \hfill
+            \begin{minipage}[t]{0.48\linewidth}
+                \raggedleft \insertuniversity
+            \end{minipage}\par
+        }
+    \fi
+    \vfill
+}
+\defbeamertemplate*{background canvas}{pd theme} {
+	\ifnum\c@framenumber=1
+		\pgfuseimage{titleBackground}
+	\fi
+}
+
+
+\defbeamertemplate*{footline}{pd theme} {
+	\ifnum\c@framenumber=1
+		\ifbeamerpadovanologos
+			\pgftext[right,bottom,at=\pgfpoint{0.95\paperwidth}{.4cm}]{\pgfuseimage{logoUnitn}}
+		\fi
+	\else
+		\ifbeamerpadovanologos
+			\pgftext[right,bottom,at=\pgfpoint{0.97\paperwidth}{0.926\paperheight}]{\pgfuseimage{logoUnitnWhite}}
+		\fi
+		\pgftext[right,bottom,at=\pgfpoint{\paperwidth}{0cm}]{\pgfuseimage{pageBackground}}
+		\pgftext[right,bottom,at=\pgfpoint{0.98\paperwidth}{0.02\paperwidth}]{
+			\raggedright\usebeamerfont{frame number in foot}\usebeamercolor[fg]{frame number in foot}\insertauthor \enspace$\vert$\enspace\par
+			\usebeamerfont{frame number in foot}
+			\usebeamercolor[fg]{frame number in foot}\insertframenumber{} of \inserttotalframenumber
+		}
+	\fi
+}
+
+\mode
+<all>
