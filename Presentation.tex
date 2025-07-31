@@ -1,4 +1,4 @@
-\documentclass[aspectratio=32,8pt]{beamer}
+\documentclass[aspectratio=64,8pt]{beamer}
 \usepackage{tikz}
 
 \usetikzlibrary{patterns}
@@ -63,51 +63,154 @@
 
 %----------------------------------------------------
 
-\begin{frame}{Punti rilevanti}
-%-----------------------------------------------------------
-\tiny
-\begin{enumerate}
-\item \textbf{Due paradigmi di convoluzione \(\;\Rightarrow\;\) un unico obiettivo}
+\begin{frame}{Equivariance formal Definition}
+    \begin{itemize}
+      \item We can interpret layers \(f(x)\) are \alert{functions} on feature fields (e.g. $\mathbb{R}^3$):
+      \begin{equation}\nonumber
+        f(x):\mathcal{F}_{\textrm{in}}\to\mathcal{F}_{\textrm{out}}
+      \end{equation}
+      and treat the subject with Group Theory formalism
+      \item Let a group $G$ act on the input space $\mathcal{F}_{\mathrm{in}}$ via $g\rhd_{\textrm{in}} x$, and as $g\rhd_{\textrm{out}}f(x)$ on $\mathcal{F}_{\textrm{out}}$.
+      \begin{columns}
+        \begin{column}{0.25\linewidth}
+        \begin{center}
 
-  \begin{itemize}\tiny
-  \item \textbf{Definizione di equivarianza}\\[2pt]
-        Una mappa lineare \(\,F\colon\!\mathcal F_{\text{in}}\!\to\!\mathcal F_{\text{out}}\)
-        è \emph{\(G\)-equivariante} se
-        \[
-           F\bigl(T_g\,f\bigr) \;=\; T_g\,F(f),
-           \qquad
-           \forall\,g\in G,\;f\in\mathcal F_{\text{in}},
-        \]
-        dove \(T_g\) è l’azione del gruppo sul feature field
-        (nel nostro caso: traslazione dello spazio e rotazione del vettore).
-        \\[4pt]
+          \textbf{Invariant Layer L}: 
+          \\$L(g\rhd_{in}x)=L(x)$.
+          \includegraphics[width=1\textwidth]{Immagini/Invariance.png}
+        \end{center}          
+        \end{column}
 
-  \item \textbf{Group Convolution}\\[2pt]
-        \[
-           (k\star_G f)(g)
-           \;=\;
-           \int_G k(g^{-1}h)\,f(h)\,dh,
-           \qquad
-           k,f : G \to V.
-        \]
-        \(\star_G\) è automaticamente equivariante \(\bigl[(L_{g'}k)\star_G(L_{g'}f)=L_{g'}(k\star_G f)\bigr]\),
-        ma l’integrale su \(SO(3)\) è oneroso.
-\end{itemize}
-\end{enumerate}
+        \begin{column}{0.3\linewidth}
+          \begin{center}
+            \textbf{Equivariant Layer $\mathcal{T}$}: \\$\mathcal{T}(g\rhd_{\textrm{in}}x)=g\rhd_{\textrm{out}}\mathcal{T}(x)$.     
+            \includegraphics[width=1\textwidth]{Immagini/Commutativity_Equivariance.png}
+          \end{center}          
+        \end{column}
+      \end{columns}
+      
+      \begin{tcolorbox}[title=\textbf{What's the role of equivariance in Physics?},colback=blue!5!white]
+          \vspace{-10pt}
+        \begin{columns}
+
+            \begin{column}{0.28\linewidth}
+              {\small 
+              \begin{equation}\nonumber
+                \Psi(\vec{r}-\vec{x}) = e^{-i\hat{p}\cdot\vec{x}}\Psi(\vec{r})
+              \end{equation}
+              }
+            \end{column}
+
+            \begin{column}{0.72\linewidth}
+              {\small 
+              \begin{equation}\nonumber
+               P_{ij}\mathcal{A}(\dots\otimes \psi_{\alpha}(\vec{x}_i)\otimes\dots\otimes\psi_{\beta}(\vec{x}_j) \otimes \dots) = - \mathcal{A}(\dots\otimes\psi_{\alpha}(\vec{x}_i)\otimes\dots\otimes\psi_{\beta}(\vec{x}_j)\otimes\dots)
+              \end{equation}
+              }
+            \end{column}
+          \end{columns}
+          \begin{columns}
+            %\begin{column}{0.28\linewidth}
+            %  {\small 
+            %  \begin{equation}\nonumber
+            %    \Psi(x+dx) = e^{i\vec{p}\cdot\vec{x}\Psi}
+            %  \end{equation}
+            %  }
+            %\end{column}
+
+            \begin{column}{1\linewidth}
+              {\small 
+              \vspace{5pt}
+              \begin{equation}\nonumber
+                  \pi^a(x) \longmapsto U_{\boldsymbol{\theta}}(\pi^a(x))=D^{ba}(U_{\boldsymbol{\theta}})\,\pi^a(x),
+                  \qquad U=\exp\bigl(i\sum \boldsymbol{\theta} \cdot \boldsymbol{\tau}/2\bigr)
+                \end{equation}
+              }
+            \end{column}
+          \end{columns}
+
+      \end{tcolorbox}
+      \item     Composition of equivariant layers are equivariant Neural Networks
+
+    \end{itemize}
 \end{frame}
 
-\begin{frame}
-    \begin{enumerate}
-\setcounter{enumi}{1}
-    \item \textbf{Osservazione — Cohen et al. (2018)}\\[2pt]
+
+
+
+\begin{frame}{Intertwiners and Equivariant Layers}
+  \vspace{-25pt}
+  \begin{tcolorbox}[title=\textbf{Intertwiner (Weiler \& Cohen 2019)},colback=blue!5!white]
+
+  A linear map $W$ between representations $\rho_{\text{in}},\rho_{\text{out}}$ of $G$ is an \alert{intertwiner} if
+  \[
+    (\star) \qquad W\,\rho_{\text{in}}(g)=\rho_{\text{out}}(g)\,W,
+      \qquad\forall g\in G .
+  \]
+  In terms of matrix representations, this just means that there exists \alert{a change of basis} (invertible intertwiner) $W$ such that the representations are similar as matrices:
+  \[
+    \rho_{\text{in}}(g)=W^{-1}\,\rho_{\text{out}}(g)\,W,
+    \qquad\forall g\in G .
+  \]
+  \end{tcolorbox}
+
+  \vspace{0.5em}
+  \begin{center}
+    \textbf{Symmetric Group $S_n$: }$G=\mathsf S_n$ acts by permuting the indices of a set $X=\{x_1,\dots,x_n\}$.      \
+  \end{center}
+
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \textbf{Antisymmetrizer -- $S_n$ Antisymm Equiv.}\\
+      \vspace{-10pt}
+      $$
+      \boxed{\;
+      \mathcal{A}\,P_h=\operatorname{sgn}(h)\, \mathcal{A}
+      \; \quad  \mathcal{A} \;=\; \frac{1}{n!}\;\sum_{g\in S_n}\!\operatorname{sgn}(g)\,P_g
+     }
+      $$
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \textbf{Deep Sets -- $S_n$ Permutation Invariance.}\\
+      \vspace{-10pt}
+    \[
+      \boxed{\;
+      W_{\text{sum}}P_h\;=\;\mathds{1}W_{\text{sum}} \quad  \Phi(X)= \rho\Bigl(\sum_{i=1}^{n} h(x_i)\Bigr),
+      }
+      \]
+    \end{column}
+  \end{columns}
+
+
+\end{frame}
+
+
+
+\begin{frame}{Group Convolution}
+    \textbf{Due paradigmi di convoluzione \(\;\Rightarrow\;\) un unico obiettivo}
+
+  \begin{enumerate}
+
+      \item \textbf{Group Convolution}\\[2pt]
+          \[
+            (k\star_G f)(g)
+            \;=\;
+            \int_G k(g^{-1}h)\,f(h)\,dh,
+            \qquad
+            k,f : G \to V.
+          \]
+          \(\star_G\) è automaticamente equivariante \(\bigl[(L_{g'}k)\star_G(L_{g'}f)=L_{g'}(k\star_G f)\bigr]\),
+          ma l’integrale su \(SO(3)\) è oneroso.
+  \end{enumerate}
+       \textbf{Osservazione — Cohen et al. (2018)}\\[2pt]
       La doppia integrazione richiesta da \(\star_G\) su \(SO(3)\)
       (dominio e kernel) è impraticabile in una rete deep;  
       meglio vincolare analiticamente il kernel in modo steerable
       e integrare solo sullo \emph{dominio fisico}.
+\end{frame}
 
-\begin{itemize}
-\tiny
-
+\begin{frame}{G-steerable convolution}
+\begin{enumerate}\setcounter{enumi}{1}
   \item \textbf{G-steerable Convolution (spazio fisico)}\\[2pt]
   \centering
   \boxed{ (k\star f)(\mathbf x)
@@ -119,19 +222,19 @@
 
         L’equivarianza è \emph{impacchettata} nella forma chiusa di \(K\).
 
-  \end{itemize}
   \vspace{4pt}
 
 \end{enumerate}
         \begin{itemize}
               \item \emph{Group convolution}\(\star_G\): integra sia sul dominio che sul gruppo.
-              \item \emph{G-steerable convolution}: integra solo sul dominio; la parte angolare è incorporata analiticamente nel kernel.
-              \item \textbf{Equivalenza teorica}: un kernel G-steerable che soddisfa \(K(R\hat r)=R K(\hat r)R^{\!\top}\) implementa la stessa trasformazione indotta da \(\star_G\), ma con costo computazionale ridotto.
+              \item \emph{G-steerable convolution}: integra solo sul dominio; la parte angolare è incorporata 
+              analiticamente nel kernel.
+              \item \textbf{Equivalenza teorica}: un kernel G-steerable che soddisfa \(K(R\hat r)=R K(\hat r)R^{\!\top}\) 
+              implementa la stessa trasformazione indotta da \(\star_G\), ma con costo computazionale ridotto.
         \end{itemize}
 \end{frame}
 
-\begin{frame}[fragile]{Kernel sferico e Steerability}
-\small
+\begin{frame}[fragile]{Kernel Sferico e Steerability}
 \[
   K(\mathbf r)
   \;=\;
@@ -164,7 +267,6 @@
 
 
 \begin{frame}[fragile]{Equivalenza dei kernel (TFN\,$\leftrightarrow$\,contratto)}
-\small
 \[
 \underbrace{\sum_{\scriptstyle J=0}^{2}\!\varphi_J(r)\sum_{m=-J}^{J}Y_{Jm}(\hat{\mathbf r})\,Q^{(J)}_{m}}_{\text{kernel TFN per }\ell_{\text{in}}=\ell_{\text{out}}=1}
 \;=\;
@@ -192,7 +294,7 @@
 \end{equation}
 
 \hspace{-20pt}
-\begin{equation}\tiny \nonumber
+\begin{equation} \nonumber
     \renewcommand{\arraystretch}{1.2}
 I=\begin{pmatrix}1&0&0\\0&1&0\\0&0&1\end{pmatrix}, \quad
 [\hat{\mathbf r}]_\times=\begin{pmatrix}0&-\hat r_z&\hat r_y\\\hat r_z&0&-\hat r_x\\-\hat r_y&\hat r_x&0\end{pmatrix}, \quad
@@ -216,7 +318,6 @@ Q(\hat{\mathbf r})=3\begin{pmatrix}
 
 
 \begin{frame}{ \((\ell_\text{out}=1) \) proof of \([r]_\times \) equivariance}
-\tiny
 \vspace{-10pt}
     \begin{lemma}{Equivarianza del termine \(b(r)\,[\hat r]_\times f \)}
 Sia  \(R\in SO(3) \),  \(\hat r=\tfrac{r}{\mid r \mid} \) e \([\hat r]_{\times,ij}=\varepsilon_{ijk}\,\hat r_k \).
@@ -257,7 +358,6 @@ dove abbiamo usato \(R^\top R = I\). Pertanto \(g' = R g\).
 
 
 \begin{frame}{$(\ell_{out}=1)$ proof of $Q(\hat{r})$ equivariance }
-\tiny
 \begin{lemma}[Equivarianza del termine $c(r)\,Q(\hat r)\,f$]
 Sia $Q_{ij}(\hat r)=3\,\hat r_i \hat r_j - \delta_{ij}$. Definiamo $h=c(\mid r \mid)\,Q(\hat r)\,f\in\mathbb R^3$.
 Allora, per $f' = R f$ e $\hat r' = R \hat r$,
@@ -291,7 +391,6 @@ Ne segue $h' = R h$.
     
 \end{frame}
 \begin{frame}{Other implementations}
-\tiny
 \begin{table}[h]\hspace{-20pt}
 \renewcommand{\arraystretch}{1.25}
 \begin{tabular}{c|l|l|l}
@@ -358,7 +457,6 @@ indicano il grado del pezzo angolare del kernel.}
 
 
 \begin{frame}[fragile]{Dal continuo al discreto \;(\(\mathbb R^3\) campionato)}
-\small
 \[
 ( K\!\star f )(\mathbf x)
 \;=\;\int_{\mathbb R^3}\!K(\mathbf x-\mathbf y)\,f(\mathbf y)\,d\mathbf y
@@ -399,4 +497,48 @@ Costo & \(\mathcal O\big(NC_{in}C_{out}(2\ell_{\max}+1)^2\big)\) & \(\mathcal O\
 \end{frame}
 
 %----------------------------------------------------
+
+
+\begin{frame}{}
+  \centering \Huge That's all
+\end{frame}
+
+
+
+\begin{frame}{Example: The antisymmetrizer}
+  %\item \emph{Permutation--equivariant GNN}
+  %      $G=S_n$ acting by node re-indexing.  Message--passing with \textsf{sum}/\textsf{mean} aggregation satisfies
+  %      $\phi(g\cdot x)=g\cdot\phi(x)$, giving order--independent graph outputs.
+  %\item \emph{Antisymmetric (fermionic) networks}
+  %      Same $G=S_n$ but using the \emph{sign} representation $\operatorname{sgn}(g)$.
+  %      Layers are built so that 
+  %      $f(g\cdot x)=\operatorname{sgn}(g)\,f(x)$, e.g. Slater Determinant and Pfaffian ansätze for many--electron wavefunctions.
+    \begin{tcolorbox}[title=\textbf{Intertwiner (Weiler \& Cohen 2019)},colback=blue!5!white]
+      \footnotesize    
+      The (unique up to scale) solution of ($\star$) is the antisymmetriser
+          $$
+          \boxed{\;
+          A \;=\; \frac{1}{n!}\;\sum_{g\in S_n}\!\operatorname{sgn}(g)\,P_g
+          \;
+          }
+          $$
+          \textbf{Proof of equivariance.}
+          $$
+          \begin{aligned}
+          A\,P_h
+          &=\frac{1}{n!}\sum_{g}\operatorname{sgn}(g)\,P_gP_h
+          =\frac{1}{n!}\sum_{g}\operatorname{sgn}(gh)\,P_{gh}\,\operatorname{sgn}(h)^{-1}\\[2mm]
+          &=\operatorname{sgn}(h)\,\frac{1}{n!}\sum_{g'}\operatorname{sgn}(g')\,P_{g'}
+          =\operatorname{sgn}(h)\,A ,
+          \end{aligned}
+          $$
+          which is exactly ($\star$) with $W=A$.
+          Because $A^2=A$, $A$ is a projection onto the totally antisymmetric (one-dimensional) irrep of $S_n$. 
+          Applying $A$ to any tensor produces an antisymmetric object.
+          
+          Generalisations
+          Pfaffian ansatz for paired states (e.g. superconductors) is built analogously but starts from a two-body skew-symmetric kernel $F(x_i,x_j)$
+    \end{tcolorbox}
+
+\end{frame}
 \end{document}
