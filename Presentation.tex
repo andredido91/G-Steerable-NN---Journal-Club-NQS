@@ -28,6 +28,7 @@
 \usepackage{colortbl} 
 \usepackage{qcircuit}
 \usepackage{cancel}
+\usepackage{proof}
 \definecolor{bluClassico}{RGB}{15,76,129}
 \usetikzlibrary{patterns}
 
@@ -43,7 +44,7 @@
     \insertframenumber/\inserttotalframenumber
 }
 
-\title{Neural Quantum States}
+\title{G-steerability of Equivariant Neural Networks}
 \subtitle{for (Hyper-)Nuclear Physics}
 \author{\href{mailto:andrea.didonna@unitn.it}{Andrea Di Donna}}
 \date{May 28, 2025}
@@ -92,7 +93,13 @@
         \(\star_G\) è automaticamente equivariante \(\bigl[(L_{g'}k)\star_G(L_{g'}f)=L_{g'}(k\star_G f)\bigr]\),
         ma l’integrale su \(SO(3)\) è oneroso.
 \end{itemize}
-\item \textbf{Osservazione — Cohen et al. (2018)}\\[2pt]
+\end{enumerate}
+\end{frame}
+
+\begin{frame}
+    \begin{enumerate}
+\setcounter{enumi}{1}
+    \item \textbf{Osservazione — Cohen et al. (2018)}\\[2pt]
       La doppia integrazione richiesta da \(\star_G\) su \(SO(3)\)
       (dominio e kernel) è impraticabile in una rete deep;  
       meglio vincolare analiticamente il kernel in modo steerable
@@ -123,7 +130,6 @@
         \end{itemize}
 \end{frame}
 
-
 \begin{frame}[fragile]{Kernel sferico e Steerability}
 \small
 \[
@@ -139,16 +145,16 @@
 
 \begin{itemize}
   \item \textbf{Separazione radiale/angolare}:\\[2pt]
-        $\varphi_J(r)$ è la parte \emph{learnable} (solo raggio),  
-        $Y_{Jm}(\hat{\mathbf r})$ sono basi fisse sul $S^2$.
+        \(\varphi_J(r)\) è la parte \emph{learnable} (solo raggio),  
+        \(Y_{Jm}(\hat{\mathbf r})\) sono basi fisse sul \(S^2\).
   \item \textbf{Steerability}:\\[2pt]
-        $Y_{Jm}\bigl(R\,\hat{\mathbf r}\bigr)
-        =\displaystyle\sum_{m'=-J}^{J} D^{J}_{m'm}(R)\,Y_{Jm'}(\hat{\mathbf r})$\\
-        $\Longrightarrow\;
-        K(R\hat{\mathbf r}) = R\,K(\hat{\mathbf r})\,R^{\!\top}$.
-  \item $Q_{Jm}$ sono i coefficienti di Clebsch–Gordan che accoppiano
-        $\ell_{\text{in}}=\ell_{\text{out}}=1$ 
-        ai tre canali angolari $J=0,1,2$.
+        \(Y_{Jm}\bigl(R\,\hat{\mathbf r}\bigr)
+        =\displaystyle\sum_{m'=-J}^{J} D^{J}_{m'm}(R)\,Y_{Jm'}(\hat{\mathbf r})\)\\
+        \(\Longrightarrow\;
+        K(R\hat{\mathbf r}) = R\,K(\hat{\mathbf r})\,R^{\!\top}\).
+  \item \(Q_{Jm}\) sono i coefficienti di Clebsch–Gordan che accoppiano
+        \(\ell_{\text{in}}=\ell_{\text{out}}=1\) 
+        ai tre canali angolari \(J=0,1,2\).
 \end{itemize}
 
 \[
@@ -205,20 +211,24 @@ Q(\hat{\mathbf r})=3\begin{pmatrix}
 \end{itemize}
 \end{frame}
 
-\begin{frame}{$(\ell_\text{out}=1)$ proof of $[r]_\times$ equivariance}
+
+
+
+
+\begin{frame}{ \((\ell_\text{out}=1) \) proof of \([r]_\times \) equivariance}
 \tiny
 \vspace{-10pt}
-    \begin{lemma}[Equivarianza del termine $b(r)\,[\hat r]_\times f$]
-Sia $R\in SO(3)$, $\hat r=\tfrac{r}{\|r\|}$ e $[\hat r]_{\times,ij}=\varepsilon_{ijk}\,\hat r_k$.
-Definiamo $g=b(\|r\|)\,[\hat r]_\times f\in\mathbb R^3$. Allora, per $f' = R f$ e $\hat r' = R \hat r$,
+    \begin{lemma}{Equivarianza del termine \(b(r)\,[\hat r]_\times f \)}
+Sia  \(R\in SO(3) \),  \(\hat r=\tfrac{r}{\mid r \mid} \) e \([\hat r]_{\times,ij}=\varepsilon_{ijk}\,\hat r_k \).
+Definiamo  \(g=b(\mid r \mid)\,[\hat r]_\times f\in\mathbb R^3 \). Allora, per  \(f' = R f \) e  \(\hat r' = R \hat r \),
 \[
-g' \;:=\; b(\|r\|)\,[\hat r']_\times f' \;=\; R\,g,
+g' \;:=\; b(\mid r \mid)\,[\hat r']_\times f' \;=\; R\,g,
 \]
-cio\`e $g$ trasforma come un vettore ($\ell=1$).
+cio\`e \(g \) trasforma come un vettore (\(\ell=1 \)).
 \end{lemma}
 \vspace{-10pt}
 \begin{proof}
-Poich\'e $b(\|r\|)$ dipende solo da $\|r\|$, \`e invariante per rotazioni. In indici,
+Poich\'e  \(b(\mid r\mid ) \) dipende solo da  \(\mid r\mid \), \`e invariante per rotazioni. In indici,
 \[
 ([\hat r']_\times)_{ij} \;=\; \varepsilon_{ijk}\,\hat r'_k
 \;=\; \varepsilon_{ijk}\,R_{k\ell}\,\hat r_\ell.
@@ -227,7 +237,7 @@ Usiamo l'invarianza del simbolo di Levi--Civita sotto rotazioni proprie,
 \[
 R_{ip}R_{jq}R_{kr}\,\varepsilon_{pqr} \;=\; \varepsilon_{ijk},
 \]
-che \`e equivalente a $[R v]_\times = R [v]_\times R^\top$. Allora
+che \`e equivalente a  \([R v]_\times = R [v]_\times R^\top \). Allora
 \[
 ([\hat r']_\times)_{ij}
 = R_{ip}R_{jq}\,\varepsilon_{pq\ell}\,\hat r_\ell
@@ -235,12 +245,12 @@ che \`e equivalente a $[R v]_\times = R [v]_\times R^\top$. Allora
 \]
 Quindi
 \[
-g'_i = b(\|r\|)\,([\hat r']_\times)_{ij} f'_j
-= b(\|r\|)\,(R[\hat r]_\times R^\top)_{ij}\,R_{jm} f_m
-= b(\|r\|)\,R_{ip}\,[\hat r]_{\times,pm}\,f_m
+g'_i = b(\mid r \mid)\,([\hat r']_\times)_{ij} f'_j
+= b(\mid r \mid)\,(R[\hat r]_\times R^\top)_{ij}\,R_{jm} f_m
+= b(\mid r \mid)\,R_{ip}\,[\hat r]_{\times,pm}\,f_m
 = (R g)_i,
 \]
-dove abbiamo usato $R^\top R = I$. Pertanto $g' = R g$.
+dove abbiamo usato \(R^\top R = I\). Pertanto \(g' = R g\).
 \end{proof}
 
 \end{frame}
@@ -249,16 +259,16 @@ dove abbiamo usato $R^\top R = I$. Pertanto $g' = R g$.
 \begin{frame}{$(\ell_{out}=1)$ proof of $Q(\hat{r})$ equivariance }
 \tiny
 \begin{lemma}[Equivarianza del termine $c(r)\,Q(\hat r)\,f$]
-Sia $Q_{ij}(\hat r)=3\,\hat r_i \hat r_j - \delta_{ij}$. Definiamo $h=c(\|r\|)\,Q(\hat r)\,f\in\mathbb R^3$.
+Sia $Q_{ij}(\hat r)=3\,\hat r_i \hat r_j - \delta_{ij}$. Definiamo $h=c(\mid r \mid)\,Q(\hat r)\,f\in\mathbb R^3$.
 Allora, per $f' = R f$ e $\hat r' = R \hat r$,
 \[
-h' \;:=\; c(\|r\|)\,Q(\hat r')\,f' \;=\; R\,h,
+h' \;:=\; c(\mid r \mid)\,Q(\hat r')\,f' \;=\; R\,h,
 \]
 cio\`e $h$ trasforma come un vettore ($\ell=1$).
 \end{lemma}
 
 \begin{proof}
-Poich\'e $c(\|r\|)$ dipende solo da $\|r\|$, \`e invariante per rotazioni. In indici,
+Poich\'e $c(\mid r \mid)$ dipende solo da $\mid r \mid$, \`e invariante per rotazioni. In indici,
 \[
 Q_{ij}(\hat r') = 3\,\hat r'_i \hat r'_j - \delta_{ij}
 = 3\,R_{ik}\hat r_k\, R_{j\ell}\hat r_\ell - \delta_{ij}
@@ -266,14 +276,14 @@ Q_{ij}(\hat r') = 3\,\hat r'_i \hat r'_j - \delta_{ij}
 = (R Q(\hat r) R^\top)_{ij}.
 \]
 Quindi
-    \begin{align}\nonumber
-        h'_i
-&= c(\|r\|)\,Q_{ij}(\hat r')\,f'_j
-= c(\|r\|)\,(R Q R^\top)_{ij}\,R_{jm} f_m
-= c(\|r\|)\,R_{ik}\,Q_{k\ell}\,(\underbrace{R^\top R}_{I})_{\ell m}\,f_m
+\begin{align}\nonumber
+h'_i
+&= c(\mid r \mid)\,Q_{ij}(\hat r')\,f'_j
+= c(\mid r \mid)\,(R Q R^\top)_{ij}\,R_{jm} f_m
+= c(\mid r \mid)\,R_{ik}\,Q_{k\ell}\,(\underbrace{R^\top R}_{I})_{\ell m}\,f_m
 \\ &=R_{ik}\,(Q f)_k
 = (R h)_i.\nonumber
-    \end{align}
+\end{align}
 
 Ne segue $h' = R h$.
 \end{proof}
@@ -298,32 +308,41 @@ $y \;=\; K_b f_b \;=\; \alpha(r)\,\hat{\mathbf r}\!\cdot\!\mathbf f$ &
 $1\otimes 1 \to 0$ \quad $(\ell_f=1)$
 \\\hline
 $1$ &
-$\displaystyle
-$\begin{aligned}
-&a(r)\,\delta_{ab}\;(\ell_f=0)\;+\\
-K_{ab}(\hat{\mathbf r},r)=&b(r)\,\epsilon_{abc}\,\hat r_c\;(\ell_f=1)\;+\\
-&c(r)\,Q_{ab}(\hat{\mathbf r})\;(\ell_f=2)
-\end{aligned}$
+\begin{equation}
+    \nonumber
+    \begin{aligned}
+        &a(r)\,\delta_{ab}\;(\ell_f=0)\;+\\
+        K_{ab}(\hat{\mathbf r},r)=&b(r)\,\epsilon_{abc}\,\hat r_c\;(\ell_f=1)\;+\\
+        &c(r)\,Q_{ab}(\hat{\mathbf r})\;(\ell_f=2)
+    \end{aligned}
+\end{equation}
 &
 $g_a \;=\; K_{ab}\,f_b$ &
-$\begin{aligned}
-&1\otimes 0 \to 1\\
-&1\otimes 1 \to 1\\
-&1\otimes 2 \to 1
-\end{aligned}$
+\begin{equation}
+    \nonumber
+    \begin{aligned}
+        &1\otimes 0 \to 1\\
+        &1\otimes 1 \to 1\\
+        &1\otimes 2 \to 1
+    \end{aligned}
+\end{equation}
+
 \\ \hline
 $2$ &
-$\begin{aligned}
+\begin{equation}
+    \nonumber
+    \begin{aligned}
 K_{ab,c}(\hat{\mathbf r},r)= &\alpha(r)\,\mathrm{ST}\!\big(\hat r_a \delta_{bc} + \hat r_b \delta_{ac}\big)\;(\ell_f=1)\;+\\
 &\;
 \beta(r)\,\mathrm{ST}\!\big(Q_{ab}(\hat{\mathbf r})\,\hat r_c\big)\;(\ell_f=2)
-\end{aligned}$
+\end{aligned}
+\end{equation}
 &
 $T_{ab} \;=\; K_{ab,c}\,f_c$ &
-$\begin{aligned}
+\begin{aligned}
 &1\otimes 1 \to 2\\
 &1\otimes 2 \to 2
-\end{aligned}$
+\end{aligned}
 \\
 \hline
 \end{tabular}
@@ -334,10 +353,10 @@ Le funzioni radiali $\alpha,\beta,a,b,c$ dipendono da $r=\|\mathbf r\|$. I tag $
 indicano il grado del pezzo angolare del kernel.}
 \label{tab:kernels-l1-irreps}
 \end{table}
-
-
-
 \end{frame}
+
+
+
 \begin{frame}[fragile]{Dal continuo al discreto \;(\(\mathbb R^3\) campionato)}
 \small
 \[
@@ -347,10 +366,10 @@ indicano il grado del pezzo angolare del kernel.}
 \sum_{j=1}^{N} K(\mathbf x-\mathbf x_j)\,f_j\,w_j.
 \]
 \begin{itemize}
-  \item \textbf{Campionamento fisico}: in chimica e point‑cloud il campo $f$ è noto solo su un set finito di posizioni $\{\mathbf x_j\}$ (atomi, particelle, voxel).
-  \item \textbf{Riemann sum}: l'integrale viene approssimato da una somma con pesi $w_j$ (volume o 1 se densità uniforme).
+  \item \textbf{Campionamento fisico}: in chimica e point‑cloud il campo \(f\) è noto solo su un set finito di posizioni \(\{\mathbf x_j\}\) (atomi, particelle, voxel).
+  \item \textbf{Riemann sum}: l'integrale viene approssimato da una somma con pesi \(w_j\) (volume o 1 se densità uniforme).
   \item \textbf{Equivarianza preservata}: se ruoti insieme posizioni e feature, la stessa somma commuta con la rotazione come faceva l'integrale.
-  \item \textbf{Efficienza}: evita la quadratura numerica su $SO(3)$; costo $\mathcal O(N)$ (o $\mathcal O(N^2)$ con tutti i vicini, riducibile via cutoff/sparse).
+  \item \textbf{Efficienza}: evita la quadratura numerica su \(SO(3)\); costo \(\mathcal O(N)\) (o \(\mathcal O(N^2)\) con tutti i vicini, riducibile via cutoff/sparse).
 \end{itemize}
 \[
 \boxed{\text{Integrale continuo}\;\approx\;\text{somma discreta su punti campionati}}
