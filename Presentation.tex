@@ -1,0 +1,383 @@
+\documentclass[aspectratio=32,8pt]{beamer}
+\usepackage{tikz}
+
+\usetikzlibrary{patterns}
+\usetikzlibrary{overlay-beamer-styles}
+\usepackage{txfonts}
+\usepackage{soul}
+
+\sethlcolor{yellow}
+\newcommand{\mathhl}[1]{%
+  \colorbox{yellow!90}{$\displaystyle #1$}%
+}
+%\usetikzlibrary{fit,calc,positioning}
+\usepackage{pgfplots}
+\usepackage{tcolorbox}
+\usepackage{dsfont}
+\usepackage{amsmath}
+%\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{xcolor}
+\usepackage{physics}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{cancel}
+%\usepackage{bbold}
+\usepackage{multirow}
+\usepackage{caption}
+\usepackage{colortbl} 
+\usepackage{qcircuit}
+\usepackage{cancel}
+\definecolor{bluClassico}{RGB}{15,76,129}
+\usetikzlibrary{patterns}
+
+\newcommand{\RNum}[1]{\uppercase\expandafter{\romannumeral #1\relax}}
+\newcommand{\email}[1]{\def\insertemail{#1}}
+\newcommand{\university}[1]{\def\insertuniversity{#1}}
+\usetikzlibrary{overlay-beamer-styles}
+\usetheme{Trento}  % Stored in /home/andrea/texmf/tex/latex/Trento
+\addtobeamertemplate{navigation symbols}{}{%
+    \usebeamerfont{footline}%
+    \usebeamercolor[fg]{footline}%
+    \hspace{1em}%
+    \insertframenumber/\inserttotalframenumber
+}
+
+\title{Neural Quantum States}
+\subtitle{for (Hyper-)Nuclear Physics}
+\author{\href{mailto:andrea.didonna@unitn.it}{Andrea Di Donna}}
+\date{May 28, 2025}
+\email{andrea.didonna@unitn.it}
+\university{TIFPA - Trento University}
+
+% Aggiunge ad ogni inizio di sezione un frame con l'indice della sola sezione corrente
+\AtBeginSection[]{
+  \begin{frame}{Sommario}
+    \tableofcontents[currentsection]
+  \end{frame}
+}
+
+\begin{document}
+\frame{\titlepage}
+
+%----------------------------------------------------
+
+\begin{frame}{Punti rilevanti}
+%-----------------------------------------------------------
+\tiny
+\begin{enumerate}
+\item \textbf{Due paradigmi di convoluzione \(\;\Rightarrow\;\) un unico obiettivo}
+
+  \begin{itemize}\tiny
+  \item \textbf{Definizione di equivarianza}\\[2pt]
+        Una mappa lineare \(\,F\colon\!\mathcal F_{\text{in}}\!\to\!\mathcal F_{\text{out}}\)
+        è \emph{\(G\)-equivariante} se
+        \[
+           F\bigl(T_g\,f\bigr) \;=\; T_g\,F(f),
+           \qquad
+           \forall\,g\in G,\;f\in\mathcal F_{\text{in}},
+        \]
+        dove \(T_g\) è l’azione del gruppo sul feature field
+        (nel nostro caso: traslazione dello spazio e rotazione del vettore).
+        \\[4pt]
+
+  \item \textbf{Group Convolution}\\[2pt]
+        \[
+           (k\star_G f)(g)
+           \;=\;
+           \int_G k(g^{-1}h)\,f(h)\,dh,
+           \qquad
+           k,f : G \to V.
+        \]
+        \(\star_G\) è automaticamente equivariante \(\bigl[(L_{g'}k)\star_G(L_{g'}f)=L_{g'}(k\star_G f)\bigr]\),
+        ma l’integrale su \(SO(3)\) è oneroso.
+\end{itemize}
+\item \textbf{Osservazione — Cohen et al. (2018)}\\[2pt]
+      La doppia integrazione richiesta da \(\star_G\) su \(SO(3)\)
+      (dominio e kernel) è impraticabile in una rete deep;  
+      meglio vincolare analiticamente il kernel in modo steerable
+      e integrare solo sullo \emph{dominio fisico}.
+
+\begin{itemize}
+\tiny
+
+  \item \textbf{G-steerable Convolution (spazio fisico)}\\[2pt]
+  \centering
+  \boxed{ (k\star f)(\mathbf x)
+           \;=\;
+           \int_{\mathbb R^3} K(\mathbf x-\mathbf y)\,f(\mathbf y)\,d\mathbf y,
+           \quad
+           K(R\hat{\mathbf r}) = R\,K(\hat{\mathbf r})\,R^{\!\top}.
+        }
+
+        L’equivarianza è \emph{impacchettata} nella forma chiusa di \(K\).
+
+  \end{itemize}
+  \vspace{4pt}
+
+\end{enumerate}
+        \begin{itemize}
+              \item \emph{Group convolution}\(\star_G\): integra sia sul dominio che sul gruppo.
+              \item \emph{G-steerable convolution}: integra solo sul dominio; la parte angolare è incorporata analiticamente nel kernel.
+              \item \textbf{Equivalenza teorica}: un kernel G-steerable che soddisfa \(K(R\hat r)=R K(\hat r)R^{\!\top}\) implementa la stessa trasformazione indotta da \(\star_G\), ma con costo computazionale ridotto.
+        \end{itemize}
+\end{frame}
+
+
+\begin{frame}[fragile]{Kernel sferico e Steerability}
+\small
+\[
+  K(\mathbf r)
+  \;=\;
+  \sum_{J=0}^{2} \varphi_J(r)
+  \sum_{m=-J}^{J}
+  Y_{Jm}\!\bigl(\hat{\mathbf r}\bigr)\;
+  Q_{Jm}^{\ell,\ell_in},
+  \qquad
+  \hat{\mathbf r}=\frac{\mathbf r}{\lVert\mathbf r\rVert}.
+\]
+
+\begin{itemize}
+  \item \textbf{Separazione radiale/angolare}:\\[2pt]
+        $\varphi_J(r)$ è la parte \emph{learnable} (solo raggio),  
+        $Y_{Jm}(\hat{\mathbf r})$ sono basi fisse sul $S^2$.
+  \item \textbf{Steerability}:\\[2pt]
+        $Y_{Jm}\bigl(R\,\hat{\mathbf r}\bigr)
+        =\displaystyle\sum_{m'=-J}^{J} D^{J}_{m'm}(R)\,Y_{Jm'}(\hat{\mathbf r})$\\
+        $\Longrightarrow\;
+        K(R\hat{\mathbf r}) = R\,K(\hat{\mathbf r})\,R^{\!\top}$.
+  \item $Q_{Jm}$ sono i coefficienti di Clebsch–Gordan che accoppiano
+        $\ell_{\text{in}}=\ell_{\text{out}}=1$ 
+        ai tre canali angolari $J=0,1,2$.
+\end{itemize}
+
+\[
+  \boxed{\;K\star f \;\text{è automaticamente }SO(3)\text{-equivariante}\;}
+\]
+\end{frame}
+
+
+\begin{frame}[fragile]{Equivalenza dei kernel (TFN\,$\leftrightarrow$\,contratto)}
+\small
+\[
+\underbrace{\sum_{\scriptstyle J=0}^{2}\!\varphi_J(r)\sum_{m=-J}^{J}Y_{Jm}(\hat{\mathbf r})\,Q^{(J)}_{m}}_{\text{kernel TFN per }\ell_{\text{in}}=\ell_{\text{out}}=1}
+\;=\;
+\underbrace{a(r)I\; +\; b(r)[\hat r]_\times\; +\; c(r)Q(\hat r)}_{\text{kernel contratto}}
+\]
+\vspace{0.5em}
+\begin{itemize}
+  \item La somma sui coefficienti di Clebsch--Gordan $Q^{(J)}_{m}$ \emph{contratta} gli indici $m$.
+  \item Produce tre tensori cartesiani ortogonali: $I$, $[\hat r]_\times$, $Q(\hat r)$.
+  \item Le funzioni radiali corrispondono: $a\!\propto\!\varphi_0$, $b\!\propto\!\varphi_1$, $c\!\propto\!\varphi_2$.
+  \item Stessa legge di trasformazione $\Rightarrow$ stessa equivarianza.
+\end{itemize}
+\vspace{-0.5em}
+\[
+\boxed{\text{Kernel TFN}\;\equiv\;\text{Kernel contratto (nostro)}}
+\]
+\end{frame}
+
+
+
+\begin{frame}{Il nostro kernel equivariante}
+\begin{equation}\nonumber
+  K(\mathbf r)=a(r)I\; +\; b(r)[\hat{\mathbf r}]_\times\; +\; c(r)\,Q(\hat{\mathbf r}),
+  \qquad \hat{\mathbf r}=\frac{\mathbf r}{\lVert\mathbf r\rVert}.
+\end{equation}
+
+\hspace{-20pt}
+\begin{equation}\tiny \nonumber
+    \renewcommand{\arraystretch}{1.2}
+I=\begin{pmatrix}1&0&0\\0&1&0\\0&0&1\end{pmatrix}, \quad
+[\hat{\mathbf r}]_\times=\begin{pmatrix}0&-\hat r_z&\hat r_y\\\hat r_z&0&-\hat r_x\\-\hat r_y&\hat r_x&0\end{pmatrix}, \quad
+Q(\hat{\mathbf r})=3\begin{pmatrix}
+ \hat r_x^2 & \hat r_x\hat r_y & \hat r_x\hat r_z\\
+ \hat r_y\hat r_x & \hat r_y^2 & \hat r_y\hat r_z\\
+ \hat r_z\hat r_x & \hat r_z\hat r_y & \hat r_z^2
+\end{pmatrix}-I.
+\end{equation}
+
+\vspace{0.5em}
+\begin{itemize}
+  \item Caso particolare \(\ell_{\text{in}}=\ell_{\text{out}}=1\) del kernel TFN.
+  \item Tre canali angolari \(J=0,1,2\) \(\Rightarrow\) tre funzioni radiali \(a,b,c\).
+  \item Equivarianza garantita da \(K(R\hat r)=R\,K(\hat r)R^{\!\top}\,\,\forall R\in SO(3).\)
+\end{itemize}
+\end{frame}
+
+\begin{frame}{$(\ell_\text{out}=1)$ proof of $[r]_\times$ equivariance}
+\tiny
+\vspace{-10pt}
+    \begin{lemma}[Equivarianza del termine $b(r)\,[\hat r]_\times f$]
+Sia $R\in SO(3)$, $\hat r=\tfrac{r}{\|r\|}$ e $[\hat r]_{\times,ij}=\varepsilon_{ijk}\,\hat r_k$.
+Definiamo $g=b(\|r\|)\,[\hat r]_\times f\in\mathbb R^3$. Allora, per $f' = R f$ e $\hat r' = R \hat r$,
+\[
+g' \;:=\; b(\|r\|)\,[\hat r']_\times f' \;=\; R\,g,
+\]
+cio\`e $g$ trasforma come un vettore ($\ell=1$).
+\end{lemma}
+\vspace{-10pt}
+\begin{proof}
+Poich\'e $b(\|r\|)$ dipende solo da $\|r\|$, \`e invariante per rotazioni. In indici,
+\[
+([\hat r']_\times)_{ij} \;=\; \varepsilon_{ijk}\,\hat r'_k
+\;=\; \varepsilon_{ijk}\,R_{k\ell}\,\hat r_\ell.
+\]
+Usiamo l'invarianza del simbolo di Levi--Civita sotto rotazioni proprie,
+\[
+R_{ip}R_{jq}R_{kr}\,\varepsilon_{pqr} \;=\; \varepsilon_{ijk},
+\]
+che \`e equivalente a $[R v]_\times = R [v]_\times R^\top$. Allora
+\[
+([\hat r']_\times)_{ij}
+= R_{ip}R_{jq}\,\varepsilon_{pq\ell}\,\hat r_\ell
+= (R[\hat r]_\times R^\top)_{ij}.
+\]
+Quindi
+\[
+g'_i = b(\|r\|)\,([\hat r']_\times)_{ij} f'_j
+= b(\|r\|)\,(R[\hat r]_\times R^\top)_{ij}\,R_{jm} f_m
+= b(\|r\|)\,R_{ip}\,[\hat r]_{\times,pm}\,f_m
+= (R g)_i,
+\]
+dove abbiamo usato $R^\top R = I$. Pertanto $g' = R g$.
+\end{proof}
+
+\end{frame}
+
+
+\begin{frame}{$(\ell_{out}=1)$ proof of $Q(\hat{r})$ equivariance }
+\tiny
+\begin{lemma}[Equivarianza del termine $c(r)\,Q(\hat r)\,f$]
+Sia $Q_{ij}(\hat r)=3\,\hat r_i \hat r_j - \delta_{ij}$. Definiamo $h=c(\|r\|)\,Q(\hat r)\,f\in\mathbb R^3$.
+Allora, per $f' = R f$ e $\hat r' = R \hat r$,
+\[
+h' \;:=\; c(\|r\|)\,Q(\hat r')\,f' \;=\; R\,h,
+\]
+cio\`e $h$ trasforma come un vettore ($\ell=1$).
+\end{lemma}
+
+\begin{proof}
+Poich\'e $c(\|r\|)$ dipende solo da $\|r\|$, \`e invariante per rotazioni. In indici,
+\[
+Q_{ij}(\hat r') = 3\,\hat r'_i \hat r'_j - \delta_{ij}
+= 3\,R_{ik}\hat r_k\, R_{j\ell}\hat r_\ell - \delta_{ij}
+= R_{ik} R_{j\ell}\,(3\,\hat r_k \hat r_\ell - \delta_{k\ell})
+= (R Q(\hat r) R^\top)_{ij}.
+\]
+Quindi
+    \begin{align}\nonumber
+        h'_i
+&= c(\|r\|)\,Q_{ij}(\hat r')\,f'_j
+= c(\|r\|)\,(R Q R^\top)_{ij}\,R_{jm} f_m
+= c(\|r\|)\,R_{ik}\,Q_{k\ell}\,(\underbrace{R^\top R}_{I})_{\ell m}\,f_m
+\\ &=R_{ik}\,(Q f)_k
+= (R h)_i.\nonumber
+    \end{align}
+
+Ne segue $h' = R h$.
+\end{proof}
+
+    
+\end{frame}
+\begin{frame}{Other implementations}
+\tiny
+\begin{table}[h]\hspace{-20pt}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{c|l|l|l}
+\hline
+$\ell_{\text{out}}$ &
+$K(\hat{\mathbf r},r)$ (forma del kernel) &
+Azione su $f_b \in \mathbb{R}^3$ &
+\shortstack[l]{Canali irred.\ usati \\$(\ell_\text{in}^{=1} \otimes \ell_\text{ker} \to \ell_{\text{out}})$} 
+\\
+\hline
+$0$ &
+$K_b(\hat{\mathbf r},r)=\alpha(r)\,\hat r_b\;(\ell_f=1)$ &
+$y \;=\; K_b f_b \;=\; \alpha(r)\,\hat{\mathbf r}\!\cdot\!\mathbf f$ &
+$1\otimes 1 \to 0$ \quad $(\ell_f=1)$
+\\\hline
+$1$ &
+$\displaystyle
+$\begin{aligned}
+&a(r)\,\delta_{ab}\;(\ell_f=0)\;+\\
+K_{ab}(\hat{\mathbf r},r)=&b(r)\,\epsilon_{abc}\,\hat r_c\;(\ell_f=1)\;+\\
+&c(r)\,Q_{ab}(\hat{\mathbf r})\;(\ell_f=2)
+\end{aligned}$
+&
+$g_a \;=\; K_{ab}\,f_b$ &
+$\begin{aligned}
+&1\otimes 0 \to 1\\
+&1\otimes 1 \to 1\\
+&1\otimes 2 \to 1
+\end{aligned}$
+\\ \hline
+$2$ &
+$\begin{aligned}
+K_{ab,c}(\hat{\mathbf r},r)= &\alpha(r)\,\mathrm{ST}\!\big(\hat r_a \delta_{bc} + \hat r_b \delta_{ac}\big)\;(\ell_f=1)\;+\\
+&\;
+\beta(r)\,\mathrm{ST}\!\big(Q_{ab}(\hat{\mathbf r})\,\hat r_c\big)\;(\ell_f=2)
+\end{aligned}$
+&
+$T_{ab} \;=\; K_{ab,c}\,f_c$ &
+$\begin{aligned}
+&1\otimes 1 \to 2\\
+&1\otimes 2 \to 2
+\end{aligned}$
+\\
+\hline
+\end{tabular}
+\caption{Kernel equivariante per $\ell_{\text{in}}=1 \to \ell_{\text{out}}\in\{0,1,2\}$.
+Si usa $Q_{ab}(\hat{\mathbf r}) = 3\,\hat r_a \hat r_b - \delta_{ab}$ e
+$\mathrm{ST}(X_{ab}) = \tfrac{1}{2}(X_{ab}+X_{ba}) - \tfrac{1}{3}\delta_{ab}\,X_{cc}$.
+Le funzioni radiali $\alpha,\beta,a,b,c$ dipendono da $r=\|\mathbf r\|$. I tag $(\ell_f=\cdot)$
+indicano il grado del pezzo angolare del kernel.}
+\label{tab:kernels-l1-irreps}
+\end{table}
+
+
+
+\end{frame}
+\begin{frame}[fragile]{Dal continuo al discreto \;(\(\mathbb R^3\) campionato)}
+\small
+\[
+( K\!\star f )(\mathbf x)
+\;=\;\int_{\mathbb R^3}\!K(\mathbf x-\mathbf y)\,f(\mathbf y)\,d\mathbf y
+\;\longrightarrow\;
+\sum_{j=1}^{N} K(\mathbf x-\mathbf x_j)\,f_j\,w_j.
+\]
+\begin{itemize}
+  \item \textbf{Campionamento fisico}: in chimica e point‑cloud il campo $f$ è noto solo su un set finito di posizioni $\{\mathbf x_j\}$ (atomi, particelle, voxel).
+  \item \textbf{Riemann sum}: l'integrale viene approssimato da una somma con pesi $w_j$ (volume o 1 se densità uniforme).
+  \item \textbf{Equivarianza preservata}: se ruoti insieme posizioni e feature, la stessa somma commuta con la rotazione come faceva l'integrale.
+  \item \textbf{Efficienza}: evita la quadratura numerica su $SO(3)$; costo $\mathcal O(N)$ (o $\mathcal O(N^2)$ con tutti i vicini, riducibile via cutoff/sparse).
+\end{itemize}
+\[
+\boxed{\text{Integrale continuo}\;\approx\;\text{somma discreta su punti campionati}}
+\]
+\end{frame}
+
+
+
+%----------------------------------------------------
+\begin{frame}[fragile]{Confronto con Tensor Field Networks}
+\begin{tabular}{|l|c|c|}
+\hline
+ & \textbf{TFN (generale)} & \textbf{Nostro caso}\tabularnewline\hline
+Input/Output irreps & \(\ell_{\text{in}},\ell_{\text{out}}\,\) arbitr. & \(\ell_{\text{in}}=\ell_{\text{out}}=1\)\\\hline
+Canali angolari \(J\) & \(|\ell_{\text{in}}-\ell_{\text{out}}|\le J\le\ell_{\text{in}}+\ell_{\text{out}}\) & \(0,1,2\)\\\hline
+Parte angolare & \(\displaystyle\sum_{m}Y^m_J\,Q_{Jm}^{\ell k}\) & \(I,[\hat r]_\times,Q\)\\\hline
+Radiale learnable & \(\hat\varphi^{\ell k}_J(r)\) & \(a(r),b(r),c(r)\)\\\hline
+Costo & \(\mathcal O\big(NC_{in}C_{out}(2\ell_{\max}+1)^2\big)\) & \(\mathcal O\big(NC_{in}C_{out}\times3\big)\)\\\hline
+\end{tabular}
+\end{frame}
+
+%----------------------------------------------------
+\begin{frame}[fragile]{Messaggio chiave}
+\begin{block}{Sintesi}
+  Il nostro layer è la versione \emph{tascabile} di TFN: mantiene la correttezza teorica (equivarianza \(SO(3)\)) con soli tre canali angolari. La parte radiale è appresa via MLP 1‑D, la parte angolare è codificata in tre tensori fissi –\;nessun campionamento del gruppo, costo costante.
+\end{block}
+\end{frame}
+
+%----------------------------------------------------
+\end{document}

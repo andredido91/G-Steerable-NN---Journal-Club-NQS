@@ -1,0 +1,4 @@
+\frametitle{Messaggio chiave}
+\begin{block}{Sintesi}
+  Il nostro layer è la versione \emph{tascabile} di TFN: mantiene la correttezza teorica (equivarianza \(SO(3)\)) con soli tre canali angolari. La parte radiale è appresa via MLP 1‑D, la parte angolare è codificata in tre tensori fissi –\;nessun campionamento del gruppo, costo costante.
+\end{block}
